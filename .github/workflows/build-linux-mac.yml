@@ -1,4 +1,4 @@
-name: Build AppImage and DMG
+name: Flutter Tests
 
 on:
   push:
@@ -7,20 +7,20 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
-    
+
+    runs-on: ubuntu-latest
+
     steps:
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.10.0'
-          channel: 'stable'
-          sdk-version: '3.0.1'
-      - run: flutter pub get
-      - run: flutter test
-      - run: flutter build web
-      
-      - name: Package as AppImage
-        run: |
-          wget -nv https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
-          chmod +x appimagetool-x86_64.AppImage
-          ./appimagetool-x86_64.AppImage ./build/linux/release/bundle/flutter_project-1.0.0-x86_64.AppDir
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v1
+      with:
+        flutter-version: stable
+
+    - name: Get dependencies
+      run: flutter pub get
+
+    - name: Run tests
+      run: flutter test
