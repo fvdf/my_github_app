@@ -8,7 +8,7 @@ on:
 jobs:
   test:
     name: Analyze the source code
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-lastest
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
