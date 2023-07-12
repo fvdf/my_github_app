@@ -17,11 +17,10 @@ jobs:
           channel: 'stable'
       - name: Install packages
         run: flutter pub get
-      - name: Generate localizations
-        run:  flutter gen-l10n
-      - name: Generate configs
-        run: flutter pub run build_runner build --delete-conflicting-outputs
-      - name: Linter
-        run: flutter analyze
-      - name: Test the code
-        run: flutter test
+      - name: Build Linux AppImage
+        run: flutter build linux --release --verbose 
+      - name: Package as AppImage
+        run: |
+          wget -nv https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool-x86_64.AppImage
+          ./appimagetool-x86_64.AppImage ./build/linux/release/bundle/flutter_project-1.0.0-x86_64.AppDir
