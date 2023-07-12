@@ -1,0 +1,43 @@
+name: Build AppImage and DMG
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    
+    steps:
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '2.x'
+      
+      - name: Install dependencies
+        run: flutter pub get
+      
+      - name: Build Linux AppImage
+        run: flutter build linux --release --verbose
+      
+      - name: Package as AppImage
+        run: |
+          wget -nv https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool-x86_64.AppImage
+          ./appimagetool-x86_64.AppImage ./build/linux/release/bundle/flutter_project-1.0.0-x86_64.AppDir
+      
+  build-macos:
+    runs-on: macos-latest
+    
+    steps:
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '2.x'
+      
+      - name: Install dependencies
+        run: flutter pub get
+      
+      - name: Build macOS DMG
+        run: flutter build macos --release --verbose
