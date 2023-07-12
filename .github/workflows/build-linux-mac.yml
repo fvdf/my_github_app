@@ -1,30 +1,61 @@
-name: Build AppImage and DMG
+name: Build
 
 on:
+  pull_request:
+    paths-ignore:
+      - "**.md"
   push:
     branches:
       - main
+    paths-ignore:
+      - "**.md"
+  workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-20.04
-    
+  flutter:
+    strategy:
+      # Some tests are falky. disable fail fast so the parallel jobs are not
+      # immediately cancelled when a test fails due to flake.
+      fail-fast: false
+      matrix:
+        channel:
+          - stable
+          - beta
+          - main
+        os:
+          - macos-latest
+          - ubuntu-latest
+        package-path:
+          - '.'
+          - 'example'
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.package-path }}
+    runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
+      - uses: actions/checkout@v3.1.0
         with:
-          flutter-version: '3.7.7'
-          
-      - run: flutter --version
-     
-      - run: flutter clean
-      - run: flutter pub upgrade
-      - run: flutter pub get
-      - run: flutter config --enable-linux-desktop
-      - run: flutter build linux
-      
-      - name: Package as AppImage
+          fetch-depth: 2
+
+      - uses: subosito/flutter-action@v2.8.0
+        with:
+          channel: ${{ matrix.channel }}
+
+      - name: Flutter doctor
+        run: flutter doctor --verbose --no-version-check
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Check format
+        run: dart format --set-exit-if-changed .
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Run tests
         run: |
-          wget -nv https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
-          chmod +x appimagetool-x86_64.AppImage
-          ./appimagetool-x86_64.AppImage ./build/linux/release/bundle/flutter_project-1.0.0-x86_64.AppDir
+          if test -d "test"; then
+            flutter test --coverage
+          fi
