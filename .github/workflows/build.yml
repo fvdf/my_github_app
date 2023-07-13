@@ -14,8 +14,8 @@ jobs:
       with:
         flutter-version: '3.7.7'
         channel: 'stable'
-    - run: flutter --version
-    - run: flutter upgrade
+    #- run: flutter --version
+    #- run: flutter upgrade
     - run: flutter config --enable-linux-desktop
     - name: "Install dependencies"
       run: |
@@ -24,10 +24,12 @@ jobs:
     - name: Build flutter app
       run: flutter build linux
     - name: Build AppImage unsing appimage-builder
-      run: appimage-builder --recipe AppImageBuilder.yml
+      uses: docker://appimagecrafters/appimage-builder:latest
+      with:
+        entrypoint: appimage-builder
+        args: --recipe ./AppImageBuilder.yml --skip-test
     - name: Save build Artifact
       uses: actions/upload-artifact@v2
       with:
         name: AppImage
         path: './*.AppImage*'
-        
