@@ -27,7 +27,7 @@ jobs:
         - run: |
              wget -nv https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
              chmod +x appimagetool-x86_64.AppImage
-             ./appimagetool-x86_64.AppImage ./build/linux/release/bundle/flutter_project-1.0.0-x86_64.AppDir
+             ./appimagetool-x86_64.AppImage ./build/linux/x64/release/bundle/my_github_app.AppDir
         - uses: actions/upload-artifact@v2
           with:
             name: Build
